@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using TransactionService.Data;
+using TransactionService.RabbitMQ;
+
 internal class Program
 {
     private static void Main(string[] args)
@@ -5,10 +9,13 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
+        builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
+        builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMem"));
+        builder.Services.AddScoped<ITransactionRepo, TransactionRepo>();
+        builder.Services.AddControllers().AddNewtonsoftJson();
 
-        builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        
+        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -21,7 +28,9 @@ internal class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        PrepDb.PrepPopulation(app);
+
+        //app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
