@@ -8,5 +8,7 @@ namespace TransactionService.Data
         bool SaveChange();
         IEnumerable<Transaction> GetTransactionByClientId(int ckientId);
         void CreateTransaction(CreateTransactionDto transaction);
+        void CreateMothlyTransaction(CreateTransactionDto transaction);
+        IEnumerable<Transaction> GetAllTransactions();
     }
 }

@@ -2,8 +2,6 @@
 using System.Text.Json;
 using System.Text;
 using TransactionService.Dtos;
-using RabbitMQ.Client.Events;
-using System.Diagnostics;
 
 namespace TransactionService.RabbitMQ
 {
@@ -21,9 +19,8 @@ namespace TransactionService.RabbitMQ
             var factory = new ConnectionFactory() { Uri = _uri };
             using var connection = await factory.CreateConnectionAsync();
             var channelOpts = new CreateChannelOptions(
-publisherConfirmationsEnabled: true,
-publisherConfirmationTrackingEnabled: true
-);
+                publisherConfirmationsEnabled: true,
+                publisherConfirmationTrackingEnabled: true);
             using var channel = await connection.CreateChannelAsync(channelOpts);
 
             var properties = new BasicProperties
@@ -31,11 +28,10 @@ publisherConfirmationTrackingEnabled: true
                 Persistent = true
             };
 
-
             await channel.ExchangeDeclareAsync(exchange: "OperationWithBalance", type: ExchangeType.Topic);
-            //await channel.QueueBindAsync(queue: "testQueue", exchange: "test", routingKey: "testKey");
             var routingKey = "secretKey";
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+            properties.Headers = new Dictionary<string, object> { { "type", "Oper" } };
 
             try
             {
@@ -46,7 +42,6 @@ publisherConfirmationTrackingEnabled: true
 
             catch
             {
-                //throw new Exception();
                 return false;
             }
             

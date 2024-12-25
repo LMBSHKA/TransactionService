@@ -9,6 +9,8 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
+        builder.Services.AddHostedService<RabbitMqListener>();
+
         builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
         builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMem"));
         builder.Services.AddScoped<ITransactionRepo, TransactionRepo>();

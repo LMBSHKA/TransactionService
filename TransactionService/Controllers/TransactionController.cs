@@ -22,15 +22,22 @@ namespace TransactionService.Controllers
             _mqService = mqService;
         }
 
-        [Route("[action]/{message}")]
+        //[Route("[action]/{message}")]
+        //[HttpGet]
+        //public IActionResult SendMessage(string message)
+        //{
+        //    _mqService.SendMessage(message);
+
+        //    return Ok("Сообщение отправлено");
+        //}
+
         [HttpGet]
-        public IActionResult SendMessage(string message)
+        public ActionResult<IEnumerable<ReadTransactionDto>> GetAllTransactions()
         {
-            _mqService.SendMessage(message);
-
-            return Ok("Сообщение отправлено");
+            var transactions = _transactionRepo.GetAllTransactions();
+            return Ok(_mapper.Map<IEnumerable<ReadTransactionDto>>(transactions));
         }
-
+        
         [HttpGet("{ClientId}")]
         public ActionResult<IEnumerable<ReadTransactionDto>> GetTransactionByClientId(int ClientId)
         {
@@ -44,7 +51,6 @@ namespace TransactionService.Controllers
         public ActionResult CreateTransaction(CreateTransactionDto createTransaction)
         {
             _transactionRepo.CreateTransaction(createTransaction);
-            _transactionRepo.SaveChange();
             return Ok();
         }
     }
