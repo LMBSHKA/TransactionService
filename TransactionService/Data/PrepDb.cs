@@ -14,7 +14,7 @@ namespace TransactionService.Data
 
         public static void SeedData(AppDbContext context)
         {
-            if (!context.Transactions.Any())
+            if (!context.TransactionsService.Any())
             {
                 context.AddRange(new Transaction()
                 {

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TransactionService.Data;
 using TransactionService.RabbitMQ;
 
@@ -8,11 +9,16 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        //Connect Db
+        builder.Services.AddDbContext<AppDbContext>(opt =>
+        {
+            opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
+
         // Add services to the container.
         builder.Services.AddHostedService<RabbitMqListener>();
 
         builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
-        builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMem"));
         builder.Services.AddScoped<ITransactionRepo, TransactionRepo>();
         builder.Services.AddControllers().AddNewtonsoftJson();
 
@@ -30,10 +36,10 @@ internal class Program
             app.UseSwaggerUI();
         }
 
-        PrepDb.PrepPopulation(app);
+        //PrepDb.PrepPopulation(app);
 
         //app.UseHttpsRedirection();
-
+        
         app.UseAuthorization();
 
         app.MapControllers();

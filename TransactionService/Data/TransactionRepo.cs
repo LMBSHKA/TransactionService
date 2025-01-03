@@ -18,7 +18,7 @@ namespace TransactionService.Data
 
         public IEnumerable<Transaction> GetAllTransactions()
         {
-            return _context.Transactions.ToList();
+            return _context.TransactionsService.ToList();
         }
 
         public void CreateTransaction(CreateTransactionDto createTransaction)
@@ -54,36 +54,14 @@ namespace TransactionService.Data
                 TransactionDate = DateTime.Now.ToString("dd.MM.yyyy"),
                 PaymentMethod = createTransaction.PaymentMethod,
                 Status = status,
-                OperationType = createTransaction.OperationType,
-                BillId = _context.Transactions.Last().BillId + 1
+                OperationType = createTransaction.Amount > 0 ? "Пополнение" : "Списание",
+                BillId = GetAllTransactions().Count() > 0 ? _context.TransactionsService.OrderBy(x => x.Id).Last().BillId + 1 : 1
             };
         }
 
-        //private (bool, Transaction) ExamAbonent(AbonentsForDebiting abonent, decimal amount)
-        //{
-        //    if (abonent != null && abonent.AmountForDebitting <= amount)
-        //    {
-        //        Console.WriteLine("find");
-        //        _newAbonents.Remove(abonent);
-        //        var debitingTransaction = new Transaction
-        //        {
-        //            ClientId = abonent.AbonentId,
-        //            Amount = abonent.AmountForDebitting,
-        //            TransactionDate = DateTime.Now.ToString("dd.MM.yyyy"),
-        //            PaymentMethod = "Abonent balance",
-        //            Status = true,
-        //            OperationType = "Mothly debiting",
-        //            BillId = _context.Transactions.Last().BillId + 2
-        //        };
-        //        return (true, debitingTransaction);
-        //    }
-
-        //    return (false, null);
-        //}
-
         public IEnumerable<Transaction> GetTransactionByClientId(int clientId)
         {
-            return _context.Transactions.Where(x => x.ClientId == clientId);
+            return _context.TransactionsService.Where(x => x.ClientId == clientId);
         }
 
         public bool SaveChange()

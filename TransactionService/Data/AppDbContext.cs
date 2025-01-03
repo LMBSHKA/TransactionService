@@ -5,7 +5,7 @@ namespace TransactionService.Data
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Transaction> TransactionsService { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) 
         {
