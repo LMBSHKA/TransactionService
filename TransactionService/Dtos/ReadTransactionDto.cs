@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System.ComponentModel.DataAnnotations;
-
-namespace TransactionService.Dtos
+﻿namespace TransactionService.Dtos
 {
     public class ReadTransactionDto
     {

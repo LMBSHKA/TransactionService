@@ -31,7 +31,6 @@ namespace TransactionService.RabbitMQ
             await channel.ExchangeDeclareAsync(exchange: "OperationWithBalance", type: ExchangeType.Topic);
             var routingKey = "secretKey";
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-            properties.Headers = new Dictionary<string, object> { { "type", "Oper" } };
 
             try
             {

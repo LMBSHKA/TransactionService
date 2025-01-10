@@ -1,5 +1,4 @@
-﻿using Microsoft.Identity.Client;
-using TransactionService.Dtos;
+﻿using TransactionService.Dtos;
 using TransactionService.Models;
 using TransactionService.RabbitMQ;
 
@@ -23,9 +22,6 @@ namespace TransactionService.Data
 
         public void CreateTransaction(CreateTransactionDto createTransaction)
         {
-            //var abonent = _newAbonents.FirstOrDefault(x => x.AbonentId == createTransaction.ClientId);
-            //(var statusProcessing, var debitingTransaction ) = ExamAbonent(abonent, createTransaction.Amount);
-
             var message = new TransactionTopUpDto { ClientId = createTransaction.ClientId, Amount = createTransaction.Amount };
             var statusProcessing = _mqService.SendMessage(message).Result;
             var newTransaction = SetTransaction(createTransaction, statusProcessing);
@@ -35,8 +31,6 @@ namespace TransactionService.Data
 
             _context.Add(newTransaction);
             SaveChange();
-            //if (debitingTransaction != null)
-            //    _context.Add(debitingTransaction);
         }
 
         public void CreateMothlyTransaction(CreateTransactionDto transaction)
@@ -54,7 +48,7 @@ namespace TransactionService.Data
                 TransactionDate = DateTime.Now.ToString("dd.MM.yyyy"),
                 PaymentMethod = createTransaction.PaymentMethod,
                 Status = status,
-                OperationType = createTransaction.Amount > 0 ? "Пополнение" : "Списание",
+                OperationType = createTransaction.Amount >= 0 ? "Пополнение" : "Списание",
                 BillId = GetAllTransactions().Count() > 0 ? _context.TransactionsService.OrderBy(x => x.Id).Last().BillId + 1 : 1
             };
         }

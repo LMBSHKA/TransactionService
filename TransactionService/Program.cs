@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using TransactionService.Data;
 using TransactionService.RabbitMQ;
 
@@ -15,6 +14,10 @@ internal class Program
             opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
 
+        //DB cleaner
+        var cleaner = new DatabaseCleaner(builder.Configuration.GetConnectionString("DefaultConnection"));
+        cleaner.ClearDatabase();
+
         // Add services to the container.
         builder.Services.AddHostedService<RabbitMqListener>();
 
@@ -25,7 +28,13 @@ internal class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            var basePath = AppContext.BaseDirectory;
+
+            var xmlPath = Path.Combine(basePath, "TransactionService.xml");
+            options.IncludeXmlComments(xmlPath);
+        });
 
         var app = builder.Build();
 
@@ -33,17 +42,37 @@ internal class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            });
         }
-
-        //PrepDb.PrepPopulation(app);
-
-        //app.UseHttpsRedirection();
         
         app.UseAuthorization();
 
         app.MapControllers();
 
         app.Run();
+    }
+}
+
+public class DatabaseCleaner
+{
+    private readonly string _connectionString;
+
+    public DatabaseCleaner(string connectionString)
+    {
+        _connectionString = connectionString;
+    }
+    public void ClearDatabase()
+    {
+        var serviceProvider = new ServiceCollection()
+           .AddDbContext<AppDbContext>(options => options.UseNpgsql(_connectionString))
+           .BuildServiceProvider();
+
+        using var context = serviceProvider.GetRequiredService<AppDbContext>();
+
+        // Удаляем существующую базу данных (если есть)
+        context.Database.EnsureDeleted();
     }
 }

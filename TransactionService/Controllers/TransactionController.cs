@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TransactionService.Data;
 using TransactionService.Dtos;
-using TransactionService.Models;
-using TransactionService.RabbitMQ;
 
 namespace TransactionService.Controllers
 {
@@ -13,31 +11,36 @@ namespace TransactionService.Controllers
     {
         private readonly ITransactionRepo _transactionRepo;
         private readonly IMapper _mapper;
-        private readonly IRabbitMqService _mqService;
 
-        public TransactionController(ITransactionRepo transactionRepo, IMapper mapper, IRabbitMqService mqService)
+        public TransactionController(ITransactionRepo transactionRepo, IMapper mapper)
         {
             _transactionRepo = transactionRepo;
             _mapper = mapper;
-            _mqService = mqService;
         }
 
-        //[Route("[action]/{message}")]
-        //[HttpGet]
-        //public IActionResult SendMessage(string message)
-        //{
-        //    _mqService.SendMessage(message);
-
-        //    return Ok("Сообщение отправлено");
-        //}
-
+        /// <summary>
+        /// Получение всех транзакций
+        /// </summary>
+        /// <param name="model">транзакции</param>
+        /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API(скоре всего неправильные данные)</response>
+        /// <response code="500">Ошибка сервера</response>
         [HttpGet]
         public ActionResult<IEnumerable<ReadTransactionDto>> GetAllTransactions()
         {
             var transactions = _transactionRepo.GetAllTransactions();
             return Ok(_mapper.Map<IEnumerable<ReadTransactionDto>>(transactions));
         }
-        
+
+        /// <summary>
+        /// Получение транзакций по id-абрнента
+        /// </summary>
+        /// <param name="model">транзакции</param>
+        /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API(скоре всего неправильные данные)</response>
+        /// <response code="500">Ошибка сервера</response>
         [HttpGet("{ClientId}")]
         public ActionResult<IEnumerable<ReadTransactionDto>> GetTransactionByClientId(int ClientId)
         {
@@ -47,6 +50,25 @@ namespace TransactionService.Controllers
             return Ok(_mapper.Map<IEnumerable<ReadTransactionDto>>(transaction));
         }
 
+        /// <summary>
+        /// Создание транзакции
+        /// </summary>
+        /// <remarks>
+        /// Пример запроса (в теле запроса передать json):
+        ///
+        ///     POST /Todo
+        ///     {
+        ///        "ClientId" : 1,
+        ///        "Amount" : 120,
+        ///        "PaymentMethod" : "card",
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="model">транзакция</param>
+        /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API(скоре всего неправильные данные)</response>
+        /// <response code="500">Ошибка сервера</response>
         [HttpPost]
         public ActionResult CreateTransaction(CreateTransactionDto createTransaction)
         {
