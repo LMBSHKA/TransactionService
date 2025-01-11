@@ -9,6 +9,17 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.SetIsOriginAllowed(origin => true)
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .AllowCredentials();
+            });
+        });
+
         //Connect Db
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
@@ -25,8 +36,8 @@ internal class Program
             });
         });
 
-            //DB cleaner
-            var cleaner = new DatabaseCleaner(builder.Configuration.GetConnectionString("DefaultConnection"));
+        //DB cleaner
+        var cleaner = new DatabaseCleaner(builder.Configuration.GetConnectionString("DefaultConnection"));
         cleaner.ClearDatabase();
 
         // Add services to the container.
@@ -58,7 +69,9 @@ internal class Program
                 c.SwaggerEndpoint("/swagger/v1/swagger.yaml", "v1");
             });
         }
-        
+
+        app.UseCors();
+
         app.UseAuthorization();
 
         app.MapControllers();
