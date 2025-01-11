@@ -6,9 +6,9 @@ namespace TransactionService.Models
     {
         [Key]
         [Required]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [Required]
-        public int ClientId { get; set; }
+        public Guid ClientId { get; set; }
         [Required]
         public decimal Amount { get; set; }
         [Required]

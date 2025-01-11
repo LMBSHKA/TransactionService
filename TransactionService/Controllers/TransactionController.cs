@@ -42,7 +42,7 @@ namespace TransactionService.Controllers
         /// <response code="400">Ошибка API(скоре всего неправильные данные)</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpGet("{ClientId}")]
-        public ActionResult<IEnumerable<ReadTransactionDto>> GetTransactionByClientId(int ClientId)
+        public ActionResult<IEnumerable<ReadTransactionDto>> GetTransactionByClientId(Guid ClientId)
         {
             var transaction = _transactionRepo.GetTransactionByClientId(ClientId);
            if (transaction == null)
@@ -58,7 +58,7 @@ namespace TransactionService.Controllers
         ///
         ///     POST /Todo
         ///     {
-        ///        "ClientId" : 1,
+        ///        "ClientId" : b6dd2c6d-8082-4dac-91b9-5bbbc12ffe9c,
         ///        "Amount" : 120,
         ///        "PaymentMethod" : "card",
         ///     }

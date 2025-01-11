@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using TransactionService.Data;
 using TransactionService.RabbitMQ;
 
@@ -14,8 +15,18 @@ internal class Program
             opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
 
-        //DB cleaner
-        var cleaner = new DatabaseCleaner(builder.Configuration.GetConnectionString("DefaultConnection"));
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Version = "v1",
+                Title = "Transaction API",
+                Description = $"Создание и просмотор транзакций ссылка - {new Uri("https://transactionservice-h089.onrender.com")}",
+            });
+        });
+
+            //DB cleaner
+            var cleaner = new DatabaseCleaner(builder.Configuration.GetConnectionString("DefaultConnection"));
         cleaner.ClearDatabase();
 
         // Add services to the container.
@@ -44,7 +55,7 @@ internal class Program
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.yaml", "v1");
             });
         }
         

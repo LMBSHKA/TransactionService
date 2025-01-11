@@ -53,9 +53,9 @@ namespace TransactionService.Data
             };
         }
 
-        public IEnumerable<Transaction> GetTransactionByClientId(int clientId)
+        public IEnumerable<Transaction> GetTransactionByClientId(Guid clientId)
         {
-            return _context.TransactionsService.Where(x => x.ClientId == clientId);
+            return _context.TransactionsService.Where(x => x.ClientId.Equals(clientId));
         }
 
         public bool SaveChange()

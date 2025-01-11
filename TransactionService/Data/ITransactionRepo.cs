@@ -6,7 +6,7 @@ namespace TransactionService.Data
     public interface ITransactionRepo
     {
         bool SaveChange();
-        IEnumerable<Transaction> GetTransactionByClientId(int ckientId);
+        IEnumerable<Transaction> GetTransactionByClientId(Guid clientId);
         void CreateTransaction(CreateTransactionDto transaction);
         void CreateMothlyTransaction(CreateTransactionDto transaction);
         IEnumerable<Transaction> GetAllTransactions();

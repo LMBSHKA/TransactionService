@@ -2,8 +2,8 @@
 {
     public class ReadTransactionDto
     {
-        public int Id { get; set; }
-        public int ClientId { get; set; }
+        public Guid Id { get; set; }
+        public Guid ClientId { get; set; }
         public decimal Amount { get; set; }
         public string TransactionDate { get; set; }
         public string PaymentMethod { get; set; }
