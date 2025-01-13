@@ -12,7 +12,8 @@ namespace TransactionService.RabbitMQ
         private static readonly Uri _uri = new Uri("amqps://akmeanzg:TMOCQxQAEWZjfE0Y7wH5v0TN_XTQ9Xfv@mouse.rmq5.cloudamqp.com/akmeanzg");
 
         private readonly IServiceScopeFactory _scopeFactory;
-
+        private IConnection _connection;
+        private IChannel _channel;
 
         public RabbitMqListener(IServiceScopeFactory scopeFactory)
         {
@@ -24,16 +25,16 @@ namespace TransactionService.RabbitMQ
             stoppingToken.ThrowIfCancellationRequested();
 
             var factory = new ConnectionFactory { Uri = _uri };
-            using var connection = await factory.CreateConnectionAsync();
-            using var channel = await connection.CreateChannelAsync();
-            var consumer = new AsyncEventingBasicConsumer(channel);
-            var queueDeclareResult = await channel.QueueDeclareAsync(durable: true, exclusive: false,
+            _connection = await factory.CreateConnectionAsync();
+            _channel = await _connection.CreateChannelAsync();
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            var queueDeclareResult = await _channel.QueueDeclareAsync(durable: true, exclusive: false,
     autoDelete: false, arguments: null, queue: "transfer");
             var queueName = queueDeclareResult.QueueName;
 
-            await channel.ExchangeDeclareAsync(exchange: "TransferAbonents", type: ExchangeType.Topic);
-            await channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-            await channel.QueueBindAsync(queue: queueName, exchange: "TransferAbonents", routingKey: "secretKeyTransfer");
+            await _channel.ExchangeDeclareAsync(exchange: "TransferAbonents", type: ExchangeType.Topic);
+            await _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+            await _channel.QueueBindAsync(queue: queueName, exchange: "TransferAbonents", routingKey: "secretKeyTransfer");
 
             consumer.ReceivedAsync += (model, ea) =>
             {
@@ -44,14 +45,14 @@ namespace TransactionService.RabbitMQ
                     var transaction = JsonSerializer.Deserialize<CreateTransactionDto>(Encoding.UTF8.GetString(body));
 
                     transactionRepo.CreateMothlyTransaction(transaction);
-                    channel.BasicAckAsync(ea.DeliveryTag, false);
+                    _channel.BasicAckAsync(ea.DeliveryTag, false);
 
                     Console.WriteLine($"Recieved: {transaction}");
                     return Task.CompletedTask;
                 }
             };
 
-            await channel.BasicConsumeAsync(queueName, autoAck: false, consumer: consumer);
+            await _channel.BasicConsumeAsync(queueName, autoAck: false, consumer: consumer);
 
             Console.ReadLine();
         }
