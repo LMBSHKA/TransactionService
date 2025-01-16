@@ -36,10 +36,6 @@ internal class Program
             });
         });
 
-        //DB cleaner
-        var cleaner = new DatabaseCleaner(builder.Configuration.GetConnectionString("DefaultConnection"));
-        cleaner.ClearDatabase();
-
         // Add services to the container.
         builder.Services.AddHostedService<RabbitMqListener>();
 
@@ -77,26 +73,5 @@ internal class Program
         app.MapControllers();
 
         app.Run();
-    }
-}
-
-public class DatabaseCleaner
-{
-    private readonly string _connectionString;
-
-    public DatabaseCleaner(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
-    public void ClearDatabase()
-    {
-        var serviceProvider = new ServiceCollection()
-           .AddDbContext<AppDbContext>(options => options.UseNpgsql(_connectionString))
-           .BuildServiceProvider();
-
-        using var context = serviceProvider.GetRequiredService<AppDbContext>();
-
-        // Удаляем существующую базу данных (если есть)
-        context.Database.EnsureDeleted();
     }
 }

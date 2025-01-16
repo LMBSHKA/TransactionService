@@ -9,7 +9,7 @@ namespace TransactionService.RabbitMQ
 {
     public class RabbitMqListener : BackgroundService
     {
-        private static readonly Uri _uri = new Uri("amqps://akmeanzg:TMOCQxQAEWZjfE0Y7wH5v0TN_XTQ9Xfv@mouse.rmq5.cloudamqp.com/akmeanzg");
+        //private static readonly Uri _uri = new Uri("amqps://akmeanzg:TMOCQxQAEWZjfE0Y7wH5v0TN_XTQ9Xfv@mouse.rmq5.cloudamqp.com/akmeanzg");
 
         private readonly IServiceScopeFactory _scopeFactory;
         private IConnection _connection;
@@ -24,7 +24,7 @@ namespace TransactionService.RabbitMQ
         {
             stoppingToken.ThrowIfCancellationRequested();
 
-            var factory = new ConnectionFactory { Uri = _uri };
+            var factory = new ConnectionFactory { HostName = "localhost" };//{ Uri = _uri };
             _connection = await factory.CreateConnectionAsync();
             _channel = await _connection.CreateChannelAsync();
             var consumer = new AsyncEventingBasicConsumer(_channel);

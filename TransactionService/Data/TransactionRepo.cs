@@ -49,7 +49,7 @@ namespace TransactionService.Data
                 PaymentMethod = createTransaction.PaymentMethod,
                 Status = status,
                 OperationType = createTransaction.Amount >= 0 ? "Пополнение" : "Списание",
-                BillId = GetAllTransactions().Count() > 0 ? _context.TransactionsService.OrderBy(x => x.Id).Last().BillId + 1 : 1
+                BillId = GetAllTransactions().Count() > 0 ? _context.TransactionsService.OrderBy(x => x.BillId).Last().BillId + 1 : 1
             };
         }
 
